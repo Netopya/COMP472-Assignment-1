@@ -13,7 +13,7 @@ namespace COMP472_Assignment_1
 {
     public partial class Form1 : Form
     {
-        List<IBranch> frontier = new List<IBranch>();
+        IFrontier frontier;
         List<IBranch> visited = new List<IBranch>();
         List<INode> goals = new List<INode>();
 
@@ -24,15 +24,21 @@ namespace COMP472_Assignment_1
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            loadBFS();
             loadSimpleData();
-            performASearch();
+            performSearch();
+
+            loadDFS();
             loadSimpleData();
-            performBFS();
+            performSearch();
+            
+            //performASearch();
+
+            //performBFS();
         }
 
         private void loadSimpleData()
         {
-            frontier.Clear();
             visited.Clear();
             goals.Clear();
 
@@ -64,6 +70,49 @@ namespace COMP472_Assignment_1
             goals.Add(G2);
         }
 
+        private void loadBFS()
+        {
+            Console.WriteLine("Loading BFS lists");
+            frontier = new BFSFrontierList();
+        }
+
+        private void loadDFS()
+        {
+            Console.WriteLine("Loading DFS list");
+            frontier = new DFSFrontierList();
+        }
+
+        private void performSearch()
+        {
+            IBranch result = null;
+
+            while (result == null)
+            {
+                IBranch current = frontier.GetNext();
+                visited.Add(current);
+
+                foreach (var op in current.getLeaf().getOperations())
+                {
+                    if (visited.Any(x => x.getLeaf().getEquals(op.Key)))
+                    {
+                        continue;
+                    }
+
+                    if (goals.Any(x => x.getEquals(op.Key)))
+                    {
+                        result = new SimpleBranch(op.Key, current);
+                        break;
+                    }
+
+                    frontier.Add(new SimpleBranch(op.Key, current));
+                }
+            }
+
+            Console.WriteLine("Found: " + result.printPath() + " cost: " + result.getCost());
+            Console.ReadLine();
+        }
+
+        /*
         private void performBFS()
         {
             IBranch result = null;
@@ -153,6 +202,6 @@ namespace COMP472_Assignment_1
 
             Console.WriteLine("Found: " + result.printPath() + " cost: " + result.getCost());
             Console.ReadLine();
-        }
+        }*/
     }
 }

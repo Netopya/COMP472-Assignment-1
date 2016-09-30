@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,18 +6,18 @@ using System.Threading.Tasks;
 
 namespace COMP472_Assignment_1
 {
-    class BFSFrontierList : IFrontier
+    class DFSFrontierList : IFrontier
     {
-        Queue<IBranch> list = new Queue<IBranch>();
+        Stack<IBranch> list = new Stack<IBranch>();
 
         public void Add(IBranch branch)
         {
-            list.Enqueue(branch);
+            list.Push(branch);
         }
 
         public IBranch GetNext()
         {
-            return list.Dequeue();
+            return list.Pop();
         }
     }
 }
