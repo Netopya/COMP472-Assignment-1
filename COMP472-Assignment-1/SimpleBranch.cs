@@ -47,5 +47,10 @@ namespace COMP472_Assignment_1
 
             return parent.printPath() + " > " + leaf.getName();
         }
+
+        public int CompareTo(object obj)
+        {
+            return getCost() - ((IBranch)obj).getCost();
+        }
     }
 }

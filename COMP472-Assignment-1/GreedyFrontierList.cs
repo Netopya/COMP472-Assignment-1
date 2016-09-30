@@ -8,16 +8,19 @@ namespace COMP472_Assignment_1
 {
     class GreedyFrontierList : IFrontier
     {
+        
         SortedSet<IBranch> list = new SortedSet<IBranch>();
 
         public void Add(IBranch branch)
         {
-            throw new NotImplementedException();
+            list.Add(branch);
         }
 
         public IBranch GetNext()
         {
-            throw new NotImplementedException();
+            IBranch first = list.First();
+            list.Remove(first);
+            return first;
         }
     }
 }

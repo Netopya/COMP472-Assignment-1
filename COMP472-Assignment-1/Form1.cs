@@ -31,7 +31,11 @@ namespace COMP472_Assignment_1
             loadDFS();
             loadSimpleData();
             performSearch();
-            
+
+            loadGreedy();
+            loadSimpleData();
+            performSearch();
+
             //performASearch();
 
             //performBFS();
@@ -82,6 +86,13 @@ namespace COMP472_Assignment_1
             frontier = new DFSFrontierList();
         }
 
+        private void loadGreedy()
+        {
+            Console.WriteLine("Loading Greedy search");
+            frontier = new GreedyFrontierList();
+        }
+
+
         private void performSearch()
         {
             IBranch result = null;
@@ -90,6 +101,8 @@ namespace COMP472_Assignment_1
             {
                 IBranch current = frontier.GetNext();
                 visited.Add(current);
+
+                Console.WriteLine("    Checking path: " + current.printPath());
 
                 foreach (var op in current.getLeaf().getOperations())
                 {
