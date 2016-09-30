@@ -26,6 +26,8 @@ namespace COMP472_Assignment_1
         {
             loadSimpleData();
             performASearch();
+            loadSimpleData();
+            performBFS();
         }
 
         private void loadSimpleData()
@@ -62,6 +64,44 @@ namespace COMP472_Assignment_1
             goals.Add(G2);
         }
 
+        private void performBFS()
+        {
+            IBranch result = null;
+
+            while (result == null)
+            {
+                IBranch current = frontier.Last();
+                frontier.Remove(current);
+                visited.Add(current);
+
+                // Might have to move this after check
+                if (goals.Any(x => x.getEquals(current.getLeaf())))
+                {
+                    result = current;
+                    break;
+                }
+
+                foreach(var op in current.getLeaf().getOperations())
+                {
+                    if(visited.Any(x => x.getLeaf().getEquals(op.Key)))
+                    {
+                        continue;
+                    }
+
+                    if (goals.Any(x => x.getEquals(op.Key)))
+                    {
+                        result = new SimpleBranch(op.Key, current);
+                        break;
+                    }
+
+                    frontier.Add(new SimpleBranch(op.Key, current));
+                }
+            }
+
+            Console.WriteLine("Found: " + result.printPath() + " cost: " + result.getCost());
+            Console.ReadLine();
+        }
+
         private void performASearch()
         {
             IBranch result;
@@ -73,7 +113,7 @@ namespace COMP472_Assignment_1
 
                 Console.WriteLine("Exploring " + current.getLeaf().getName());
 
-                if (goals.Contains(current.getLeaf()))
+                if (goals.Any(x => x.getEquals(current.getLeaf())))
                 {
                     result = current;
                     break;
@@ -111,7 +151,7 @@ namespace COMP472_Assignment_1
             }
 
 
-            Console.WriteLine("Found: " + result.printPath());
+            Console.WriteLine("Found: " + result.printPath() + " cost: " + result.getCost());
             Console.ReadLine();
         }
     }
