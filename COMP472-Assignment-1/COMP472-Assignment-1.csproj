@@ -58,6 +58,7 @@
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
+    <Compile Include="AStarFrontierList.cs" />
     <Compile Include="GreedyFrontierList.cs" />
     <Compile Include="IBranch.cs" />
     <Compile Include="IFrontier.cs" />

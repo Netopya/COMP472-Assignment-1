@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace COMP472_Assignment_1
 {
-    interface IBranch : IComparable
+    interface IBranch
     {
         IBranch getParent();
         INode getLeaf();

@@ -36,6 +36,10 @@ namespace COMP472_Assignment_1
             loadSimpleData();
             performSearch();
 
+            loadAStar();
+            loadSimpleData();
+            performSearch();
+
             //performASearch();
 
             //performBFS();
@@ -90,6 +94,12 @@ namespace COMP472_Assignment_1
         {
             Console.WriteLine("Loading Greedy search");
             frontier = new GreedyFrontierList();
+        }
+
+        private void loadAStar()
+        {
+            Console.WriteLine("Loading A* Search search");
+            frontier = new AStarFrontierList();
         }
 
 
