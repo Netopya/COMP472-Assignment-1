@@ -24,6 +24,12 @@ namespace COMP472_Assignment_1
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            /*
+            for(int i =0; i < 9; i++)
+            {
+                Console.WriteLine("Index: " + i + " Point: " + EightPuzzleNode.indexToCoordinate(i).ToString());
+            }*/
+
             loadBFS();
             loadSimpleData();
             performSearch();
@@ -41,6 +47,17 @@ namespace COMP472_Assignment_1
             performSearch();
 
             loadAStar();
+            EightPuzzleNode.selectedHeuristic = EightPuzzleHeuristics.misplaced;
+            loadEightPuzzleData();
+            performSearch();
+
+            loadAStar();
+            EightPuzzleNode.selectedHeuristic = EightPuzzleHeuristics.manhattan;
+            loadEightPuzzleData();
+            performSearch();
+
+            loadAStar();
+            EightPuzzleNode.selectedHeuristic = EightPuzzleHeuristics.min_misplaced_manhattan;
             loadEightPuzzleData();
             performSearch();
 
@@ -87,8 +104,6 @@ namespace COMP472_Assignment_1
             visited.Clear();
             goals.Clear();
 
-            EightPuzzleNode.selectedHeuristic = EightPuzzleHeuristics.misplaced;
-
             EightPuzzleNode goal = new EightPuzzleNode(new List<Tiles> { Tiles.one, Tiles.two, Tiles.three, Tiles.eight, Tiles.empty, Tiles.four, Tiles.seven, Tiles.six, Tiles.five });
             
             EightPuzzleNode.Goal = goal.getBoard();
@@ -128,9 +143,12 @@ namespace COMP472_Assignment_1
         private void performSearch()
         {
             IBranch result = null;
+            int count = 0;
 
             while (result == null)
             {
+                count++;
+
                 IBranch current = frontier.GetNext();
                 visited.Add(current);
 
@@ -154,6 +172,7 @@ namespace COMP472_Assignment_1
             }
 
             Console.WriteLine("Found: " + result.printPath() + " cost: " + result.getCost());
+            Console.WriteLine("    count: " + count);
             Console.ReadLine();
         }
 

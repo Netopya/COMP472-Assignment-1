@@ -55,13 +55,13 @@ namespace COMP472_Assignment_1
 
         public IBranch GetNext()
         {
-            Console.WriteLine("        Original Items: " + string.Join(", ", list.AsEnumerable().Select(x => x.getLeaf().getName())));
+            //Console.WriteLine("        Original Items: " + string.Join(", ", list.AsEnumerable().Select(x => x.getLeaf().getName())));
             IBranch first = list.RemoveFirst();
             
 
-            Console.WriteLine("        Popping: " + first.getLeaf().getName());
+            //Console.WriteLine("        Popping: " + first.getLeaf().getName());
 
-            Console.WriteLine("        New Items: " + string.Join(", ", list.AsEnumerable().Select(x => x.getLeaf().getName())));
+            //Console.WriteLine("        New Items: " + string.Join(", ", list.AsEnumerable().Select(x => x.getLeaf().getName())));
 
             return first;
         }

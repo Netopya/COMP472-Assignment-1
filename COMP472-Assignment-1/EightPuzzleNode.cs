@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -77,7 +78,31 @@ namespace COMP472_Assignment_1
             return board;
         }
 
+        private int getMisplacedH()
+        {
+            return board.Zip(Goal, (f, s) => f == s).Count(x => !x);
+        }
 
+        private int getManhattanH()
+        {
+            int h = 0;
+            int index = 0;
+            foreach(var tile in board)
+            {
+                var goalCoordinate = indexToCoordinate(Goal.IndexOf(tile));
+                var currentCoordiante = indexToCoordinate(index);
+
+                h += Math.Abs(goalCoordinate.X - currentCoordiante.X) + Math.Abs(goalCoordinate.Y - currentCoordiante.Y);
+                index++;
+            }
+
+            return h;
+        }
+
+        private Point indexToCoordinate(int index)
+        {
+            return new Point(index % 3, index / 3);
+        }
 
         #region INode methods
         public bool getEquals(INode other)
@@ -91,7 +116,11 @@ namespace COMP472_Assignment_1
             switch(selectedHeuristic)
             {
                 case EightPuzzleHeuristics.misplaced:
-                    return board.Zip(Goal, (f, s) => f == s).Count(x => !x);
+                    return getMisplacedH();
+                case EightPuzzleHeuristics.manhattan:
+                    return getManhattanH();
+                case EightPuzzleHeuristics.min_misplaced_manhattan:
+                    return Math.Min(getMisplacedH(), getManhattanH());
                 default:
                     throw new Exception("Could not load heuristic");
             }
