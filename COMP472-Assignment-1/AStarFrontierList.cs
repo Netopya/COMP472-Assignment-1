@@ -17,7 +17,7 @@ namespace COMP472_Assignment_1
         }
 
 
-        SortedSet<IBranch> list = new SortedSet<IBranch>(new AStarComparer());
+        List<IBranch> list = new List<IBranch>();
 
         public void Add(IBranch branch)
         {
@@ -27,20 +27,22 @@ namespace COMP472_Assignment_1
             }*/
 
             list.Add(branch);
+            var comparer = new AStarComparer();
+            list.Sort((x, y) => comparer.Compare(x, y));
         }
 
         public IBranch GetNext()
         {
             IBranch first = list.First();
-            
 
-            Console.Write("        Items: ");
+
+            /*Console.Write("        Items: ");
             foreach(var item in list)
             {
                 Console.Write(item.getLeaf().getName() + ", ");
             }
 
-            Console.WriteLine();
+            Console.WriteLine();*/
 
             list.Remove(first);
             return first;

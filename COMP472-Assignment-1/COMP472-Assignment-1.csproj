@@ -52,6 +52,7 @@
   <ItemGroup>
     <Compile Include="BFSFrontierList.cs" />
     <Compile Include="DFSFrontierList.cs" />
+    <Compile Include="EightPuzzleNode.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>

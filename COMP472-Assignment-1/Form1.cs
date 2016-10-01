@@ -40,6 +40,10 @@ namespace COMP472_Assignment_1
             loadSimpleData();
             performSearch();
 
+            loadAStar();
+            loadEightPuzzleData();
+            performSearch();
+
             //performASearch();
 
             //performBFS();
@@ -76,6 +80,24 @@ namespace COMP472_Assignment_1
             frontier.Add(new SimpleBranch(S, null));
             goals.Add(G1);
             goals.Add(G2);
+        }
+
+        private void loadEightPuzzleData()
+        {
+            visited.Clear();
+            goals.Clear();
+
+            EightPuzzleNode.selectedHeuristic = EightPuzzleHeuristics.misplaced;
+
+            EightPuzzleNode goal = new EightPuzzleNode(new List<Tiles> { Tiles.one, Tiles.two, Tiles.three, Tiles.eight, Tiles.empty, Tiles.four, Tiles.seven, Tiles.six, Tiles.five });
+            
+            EightPuzzleNode.Goal = goal.getBoard();
+            goals.Add(goal);
+
+            //EightPuzzleNode start = new EightPuzzleNode(new List<Tiles> { Tiles.one, Tiles.two, Tiles.three, Tiles.eight, Tiles.six, Tiles.four, Tiles.seven, Tiles.five, Tiles.empty });
+            //EightPuzzleNode start = new EightPuzzleNode(new List<Tiles> { Tiles.one, Tiles.two, Tiles.three, Tiles.eight, Tiles.empty, Tiles.four, Tiles.seven, Tiles.six, Tiles.five });
+            EightPuzzleNode start = new EightPuzzleNode(new List<Tiles> { Tiles.one, Tiles.two, Tiles.three, Tiles.four, Tiles.five, Tiles.six, Tiles.eight, Tiles.seven, Tiles.empty });
+            frontier.Add(new SimpleBranch(start, null));
         }
 
         private void loadBFS()
