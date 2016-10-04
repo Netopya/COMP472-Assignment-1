@@ -47,17 +47,22 @@ namespace COMP472_Assignment_1
             performSearch();
 
             loadAStar();
-            EightPuzzleNode.selectedHeuristic = EightPuzzleHeuristics.misplaced;
-            loadEightPuzzleData();
-            performSearch();
-
-            loadAStar();
             EightPuzzleNode.selectedHeuristic = EightPuzzleHeuristics.manhattan;
             loadEightPuzzleData();
             performSearch();
 
             loadAStar();
-            EightPuzzleNode.selectedHeuristic = EightPuzzleHeuristics.min_misplaced_manhattan;
+            EightPuzzleNode.selectedHeuristic = EightPuzzleHeuristics.row_swap;
+            loadEightPuzzleData();
+            performSearch();
+
+            loadAStar();
+            EightPuzzleNode.selectedHeuristic = EightPuzzleHeuristics.misplaced;
+            loadEightPuzzleData();
+            performSearch();
+
+            loadAStar();
+            EightPuzzleNode.selectedHeuristic = EightPuzzleHeuristics.row_col_count;
             loadEightPuzzleData();
             performSearch();
 
@@ -112,6 +117,8 @@ namespace COMP472_Assignment_1
             //EightPuzzleNode start = new EightPuzzleNode(new List<Tiles> { Tiles.one, Tiles.two, Tiles.three, Tiles.eight, Tiles.six, Tiles.four, Tiles.seven, Tiles.five, Tiles.empty });
             //EightPuzzleNode start = new EightPuzzleNode(new List<Tiles> { Tiles.one, Tiles.two, Tiles.three, Tiles.eight, Tiles.empty, Tiles.four, Tiles.seven, Tiles.six, Tiles.five });
             EightPuzzleNode start = new EightPuzzleNode(new List<Tiles> { Tiles.one, Tiles.two, Tiles.three, Tiles.four, Tiles.five, Tiles.six, Tiles.eight, Tiles.seven, Tiles.empty });
+            //EightPuzzleNode start = new EightPuzzleNode(new List<Tiles> { Tiles.four, Tiles.six, Tiles.seven, Tiles.one, Tiles.empty, Tiles.two, Tiles.three, Tiles.five, Tiles.eight });
+            
             frontier.Add(new SimpleBranch(start, null));
         }
 
@@ -152,7 +159,11 @@ namespace COMP472_Assignment_1
                 IBranch current = frontier.GetNext();
                 visited.Add(current);
 
-                Console.WriteLine("    Checking path: " + current.printPath());
+                //Console.WriteLine("    Checking path: " + current.printPath());
+                if (count % 100 == 0)
+                {
+                    Console.WriteLine("    Checked " + count + " paths");
+                }
 
                 foreach (var op in current.getLeaf().getOperations())
                 {

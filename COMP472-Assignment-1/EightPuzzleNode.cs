@@ -24,7 +24,9 @@ namespace COMP472_Assignment_1
     {
         manhattan,
         misplaced,
-        min_misplaced_manhattan
+        min_misplaced_manhattan,
+        row_swap,
+        row_col_count
     }
 
     class EightPuzzleNode : INode
@@ -103,7 +105,87 @@ namespace COMP472_Assignment_1
         {
             return new Point(index % 3, index / 3);
         }
+        
+        private int getEulerDistance()
+        {
+            int h = 0;
+            int index = 0;
+            foreach (var tile in board)
+            {
+                var goalCoordinate = indexToCoordinate(Goal.IndexOf(tile));
+                var currentCoordiante = indexToCoordinate(index);
 
+                h += (int)Math.Floor(Math.Sqrt(Math.Pow(goalCoordinate.X - currentCoordiante.X, 2) + Math.Pow(goalCoordinate.Y - currentCoordiante.Y, 2)));
+                index++;
+            }
+
+            return h;
+        }
+
+        // My implementation of a heuristic that is better than the manhattan distance
+        // Based on the idea presented here, https://courses.cs.washington.edu/courses/csep573/11wi/lectures/03-hsearch.pdf
+        // My idea is loosely based off of the linear conflicts heuristic, with a significant shortcut that is only applicable to the 3x3 senario.
+        // For each row, get all the tiles that are in the correct row but in the incorrect position relative to the goal.
+        // If we can find two tiles that need to be moved in opposite directions, add 2 to the heuristic (represents the additional vertical moves).
+        private int getRowSwaps()
+        {
+            int h = 0;
+
+            for (int i = 0; i < 9; i=i+3)
+            {
+                var current = board.GetRange(i, 3);
+                var goal = Goal.GetRange(i, 3);
+
+                var correctRow = current.Union(goal);
+
+                List<int> wrongPosition = new List<int>();
+
+                foreach(var tile in correctRow)
+                {
+                    int currentIndex = board.IndexOf(tile);
+                    int goalIndex = Goal.IndexOf(tile);
+
+                    if(currentIndex != goalIndex)
+                    {
+                        wrongPosition.Add(currentIndex - goalIndex);
+                    }
+                }
+
+                if(wrongPosition.Any(x => x > 0) && wrongPosition.Any(x => x < 0))
+                {
+                    h += 2;
+                }
+            }
+
+            return h;
+        }
+
+        private int getRowColCount()
+        {
+            int h = 0;
+
+            for (int i = 0; i < 9; i = i + 3)
+            {
+                var current = board.GetRange(i, 3);
+                var goal = Goal.GetRange(i, 3);
+
+                var correctRow = current.Union(goal);
+
+                h += 3 - correctRow.Count();
+            }
+
+            for(int i = 0; i < 3; i++)
+            {
+                var current = new List<Tiles> { board[i], board[i + 3], board[i + 6] };
+                var goal = new List<Tiles> { Goal[i], Goal[i + 3], Goal[i + 6] };
+
+                var correctCol = current.Union(goal);
+
+                h += 3 - correctCol.Count();
+            }
+
+            return h;
+        }
         #region INode methods
         public bool getEquals(INode other)
         {
@@ -121,6 +203,10 @@ namespace COMP472_Assignment_1
                     return getManhattanH();
                 case EightPuzzleHeuristics.min_misplaced_manhattan:
                     return Math.Min(getMisplacedH(), getManhattanH());
+                case EightPuzzleHeuristics.row_swap:
+                    return getManhattanH() + getRowSwaps();
+                case EightPuzzleHeuristics.row_col_count:
+                    return getMisplacedH() + getRowColCount();
                 default:
                     throw new Exception("Could not load heuristic");
             }
