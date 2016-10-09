@@ -88,9 +88,9 @@
             this.label3.AutoSize = true;
             this.label3.Location = new System.Drawing.Point(12, 116);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(227, 13);
+            this.label3.Size = new System.Drawing.Size(285, 13);
             this.label3.TabIndex = 5;
-            this.label3.Text = "Heuristic Type (will only be used for A* Search)";
+            this.label3.Text = "Heuristic Type (will only be used for A* Search on 8-Puzzle)";
             // 
             // label4
             // 
