@@ -11,6 +11,20 @@ using MoreLinq;
 
 namespace COMP472_Assignment_1
 {
+    enum ProblemTypes
+    {
+        Graph,
+        Eight_puzzle
+    }
+
+    enum SearchType
+    {
+        BFS,
+        DFS,
+        Greedy,
+        AStar
+    }
+
     public partial class Form1 : Form
     {
         IFrontier frontier;
@@ -20,6 +34,9 @@ namespace COMP472_Assignment_1
         public Form1()
         {
             InitializeComponent();
+            cmbHType.DataSource = Enum.GetValues(typeof(EightPuzzleHeuristics));
+            cmbProblemType.DataSource = Enum.GetValues(typeof(ProblemTypes));
+            cmbSearchType.DataSource = Enum.GetValues(typeof(SearchType));
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -29,6 +46,10 @@ namespace COMP472_Assignment_1
             {
                 Console.WriteLine("Index: " + i + " Point: " + EightPuzzleNode.indexToCoordinate(i).ToString());
             }*/
+
+            
+
+            return;
 
             loadBFS();
             loadSimpleData();
@@ -69,6 +90,40 @@ namespace COMP472_Assignment_1
             //performASearch();
 
             //performBFS();
+        }
+
+        private void loadSearch()
+        {
+            //txtOut.Text = "";
+
+            switch((SearchType)cmbSearchType.SelectedValue)
+            {
+                case SearchType.BFS:
+                    loadBFS();
+                    break;
+                case SearchType.DFS:
+                    loadDFS();
+                    break;
+                case SearchType.Greedy:
+                    loadGreedy();
+                    break;
+                case SearchType.AStar:
+                    loadAStar();
+                    break;
+            }
+
+            if((ProblemTypes)cmbProblemType.SelectedValue == ProblemTypes.Graph)
+            {
+                loadSimpleData();
+            }
+            else
+            {
+                EightPuzzleNode.selectedHeuristic = (EightPuzzleHeuristics)cmbHType.SelectedValue;
+                printMessage("Setting heuristic to " + cmbHType.SelectedValue);
+                loadEightPuzzleData();
+            }
+
+            performSearch();
         }
 
         private void loadSimpleData()
@@ -116,33 +171,34 @@ namespace COMP472_Assignment_1
 
             //EightPuzzleNode start = new EightPuzzleNode(new List<Tiles> { Tiles.one, Tiles.two, Tiles.three, Tiles.eight, Tiles.six, Tiles.four, Tiles.seven, Tiles.five, Tiles.empty });
             //EightPuzzleNode start = new EightPuzzleNode(new List<Tiles> { Tiles.one, Tiles.two, Tiles.three, Tiles.eight, Tiles.empty, Tiles.four, Tiles.seven, Tiles.six, Tiles.five });
-            EightPuzzleNode start = new EightPuzzleNode(new List<Tiles> { Tiles.one, Tiles.two, Tiles.three, Tiles.four, Tiles.five, Tiles.six, Tiles.eight, Tiles.seven, Tiles.empty });
-            //EightPuzzleNode start = new EightPuzzleNode(new List<Tiles> { Tiles.four, Tiles.six, Tiles.seven, Tiles.one, Tiles.empty, Tiles.two, Tiles.three, Tiles.five, Tiles.eight });
+
+            //EightPuzzleNode start = new EightPuzzleNode(new List<Tiles> { Tiles.one, Tiles.two, Tiles.three, Tiles.four, Tiles.five, Tiles.six, Tiles.eight, Tiles.seven, Tiles.empty });
+            EightPuzzleNode start = new EightPuzzleNode(new List<Tiles> { Tiles.four, Tiles.six, Tiles.seven, Tiles.one, Tiles.empty, Tiles.two, Tiles.three, Tiles.five, Tiles.eight });
             
             frontier.Add(new SimpleBranch(start, null));
         }
 
         private void loadBFS()
         {
-            Console.WriteLine("Loading BFS lists");
+            printMessage("Loading BFS lists");
             frontier = new BFSFrontierList();
         }
 
         private void loadDFS()
         {
-            Console.WriteLine("Loading DFS list");
+            printMessage("Loading DFS list");
             frontier = new DFSFrontierList();
         }
 
         private void loadGreedy()
         {
-            Console.WriteLine("Loading Greedy search");
+            printMessage("Loading Greedy search");
             frontier = new GreedyFrontierList();
         }
 
         private void loadAStar()
         {
-            Console.WriteLine("Loading A* Search search");
+            printMessage("Loading A* Search search");
             frontier = new AStarFrontierList();
         }
 
@@ -162,7 +218,7 @@ namespace COMP472_Assignment_1
                 //Console.WriteLine("    Checking path: " + current.printPath());
                 if (count % 100 == 0)
                 {
-                    Console.WriteLine("    Checked " + count + " paths");
+                    printMessage("    Checked " + count + " paths");
                 }
 
                 foreach (var op in current.getLeaf().getOperations())
@@ -182,9 +238,25 @@ namespace COMP472_Assignment_1
                 }
             }
 
-            Console.WriteLine("Found: " + result.printPath() + " cost: " + result.getCost());
-            Console.WriteLine("    count: " + count);
-            Console.ReadLine();
+            printMessage(string.Format("Found: {0}{1}    cost:{2}{3}    count:{4}", result.printPath(), System.Environment.NewLine, result.getCost(), System.Environment.NewLine, count));
+            //printMessage("Found: " + result.printPath() + " cost: " + result.getCost());
+            //printMessage("    count: " + count);
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            loadSearch();
+        }
+
+        private void printMessage(string message)
+        {
+            txtOut.Text += message + System.Environment.NewLine + System.Environment.NewLine;
+            Console.WriteLine(message);
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            txtOut.Text = "";
         }
 
         /*
