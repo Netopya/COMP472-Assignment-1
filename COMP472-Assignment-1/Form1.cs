@@ -171,8 +171,8 @@ namespace COMP472_Assignment_1
             //EightPuzzleNode start = new EightPuzzleNode(new List<Tiles> { Tiles.one, Tiles.two, Tiles.three, Tiles.eight, Tiles.six, Tiles.four, Tiles.seven, Tiles.five, Tiles.empty });
             //EightPuzzleNode start = new EightPuzzleNode(new List<Tiles> { Tiles.one, Tiles.two, Tiles.three, Tiles.eight, Tiles.empty, Tiles.four, Tiles.seven, Tiles.six, Tiles.five });
 
-            //EightPuzzleNode start = new EightPuzzleNode(new List<Tiles> { Tiles.one, Tiles.two, Tiles.three, Tiles.four, Tiles.five, Tiles.six, Tiles.eight, Tiles.seven, Tiles.empty });
-            EightPuzzleNode start = new EightPuzzleNode(new List<Tiles> { Tiles.four, Tiles.six, Tiles.seven, Tiles.one, Tiles.empty, Tiles.two, Tiles.three, Tiles.five, Tiles.eight });
+            EightPuzzleNode start = new EightPuzzleNode(new List<Tiles> { Tiles.one, Tiles.two, Tiles.three, Tiles.four, Tiles.five, Tiles.six, Tiles.eight, Tiles.seven, Tiles.empty });
+            //EightPuzzleNode start = new EightPuzzleNode(new List<Tiles> { Tiles.four, Tiles.six, Tiles.seven, Tiles.one, Tiles.empty, Tiles.two, Tiles.three, Tiles.five, Tiles.eight });
             
             frontier.Add(new SimpleBranch(start, null));
         }
@@ -204,6 +204,8 @@ namespace COMP472_Assignment_1
 
         private void performSearch()
         {
+            var watch = System.Diagnostics.Stopwatch.StartNew();
+
             IBranch result = null;
             int count = 0;
 
@@ -217,7 +219,7 @@ namespace COMP472_Assignment_1
                 //Console.WriteLine("    Checking path: " + current.printPath());
                 if (count % 100 == 0)
                 {
-                    printMessage("    Checked " + count + " paths");
+                    Console.WriteLine("    Checked " + count + " paths");
                 }
 
                 foreach (var op in current.getLeaf().getOperations())
@@ -237,7 +239,9 @@ namespace COMP472_Assignment_1
                 }
             }
 
-            printMessage(string.Format("Found: {0}{1}    cost:{2}{3}    count:{4}", result.printPath(), System.Environment.NewLine, result.getCost(), System.Environment.NewLine, count));
+            watch.Stop();
+            printMessage(string.Format("Found: {0}{1}    cost: {2}{3}    count: {4}{1}    After {5} seconds", result.printPath(), System.Environment.NewLine, result.getCost(), System.Environment.NewLine, count, watch.Elapsed.TotalSeconds));
+            
             //printMessage("Found: " + result.printPath() + " cost: " + result.getCost());
             //printMessage("    count: " + count);
         }
