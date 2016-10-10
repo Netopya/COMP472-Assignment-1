@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace COMP472_Assignment_1
 {
+    // The tiles on the 8-puzzle board
     enum Tiles
     {
         one,
@@ -20,6 +21,7 @@ namespace COMP472_Assignment_1
         empty
     }
 
+    // Various heuristics to quantify states
     enum EightPuzzleHeuristics
     {
         manhattan,
@@ -31,6 +33,7 @@ namespace COMP472_Assignment_1
 
     class EightPuzzleNode : INode
     {
+        // Actions to move the blank space
         enum Operations
         {
             up,
@@ -39,6 +42,7 @@ namespace COMP472_Assignment_1
             right
         }
 
+        // A mapping of places on the board to legal actions
         static readonly Dictionary<int, List<Operations>> validActions = new Dictionary<int, List<Operations>> {
             {0,new List<Operations> {Operations.right, Operations.down } },
             {1,new List<Operations> {Operations.right, Operations.down, Operations.left } },
@@ -51,6 +55,7 @@ namespace COMP472_Assignment_1
             {8,new List<Operations> {Operations.left, Operations.up } },
         };
 
+        // Human friendly names for the tiles
         static readonly Dictionary<Tiles, string> tileNames = new Dictionary<Tiles, string>
         {
             {Tiles.one, "1" },
@@ -64,11 +69,11 @@ namespace COMP472_Assignment_1
             {Tiles.empty, "B" }
         };
 
-        private List<Tiles> board = new List<Tiles>(9);
-        private Dictionary<INode, int> operations;
+        private List<Tiles> board = new List<Tiles>(9);  // The node's board
+        private Dictionary<INode, int> operations; // Valid moves from the current board
 
-        public static List<Tiles> Goal { get; set; }
-        public static EightPuzzleHeuristics selectedHeuristic { get; set; }
+        public static List<Tiles> Goal { get; set; } // The current goal state
+        public static EightPuzzleHeuristics selectedHeuristic { get; set; } // The currently selected heuristic
 
         public EightPuzzleNode(List<Tiles> board)
         {
@@ -80,20 +85,25 @@ namespace COMP472_Assignment_1
             return board;
         }
 
+        // Get the Misplaced Tiles heuristic
         private int getMisplacedH()
         {
+            // Zip the board with the Goal and count how many positions are not equal
             return board.Zip(Goal, (f, s) => f == s).Count(x => !x);
         }
 
+        // Get the Manhattan Distance heuristic
         private int getManhattanH()
         {
             int h = 0;
             int index = 0;
+
             foreach(var tile in board)
             {
                 var goalCoordinate = indexToCoordinate(Goal.IndexOf(tile));
                 var currentCoordiante = indexToCoordinate(index);
-
+                
+                // Calculate the Manhattan distance between the current tile and the same tile on the goal's board
                 h += Math.Abs(goalCoordinate.X - currentCoordiante.X) + Math.Abs(goalCoordinate.Y - currentCoordiante.Y);
                 index++;
             }
@@ -101,25 +111,10 @@ namespace COMP472_Assignment_1
             return h;
         }
 
+        // Convert an index on the list to a point on the cartesian plane
         private Point indexToCoordinate(int index)
         {
             return new Point(index % 3, index / 3);
-        }
-        
-        private int getEulerDistance()
-        {
-            int h = 0;
-            int index = 0;
-            foreach (var tile in board)
-            {
-                var goalCoordinate = indexToCoordinate(Goal.IndexOf(tile));
-                var currentCoordiante = indexToCoordinate(index);
-
-                h += (int)Math.Floor(Math.Sqrt(Math.Pow(goalCoordinate.X - currentCoordiante.X, 2) + Math.Pow(goalCoordinate.Y - currentCoordiante.Y, 2)));
-                index++;
-            }
-
-            return h;
         }
 
         // My implementation of a heuristic that is better than the manhattan distance
@@ -160,6 +155,8 @@ namespace COMP472_Assignment_1
             return h;
         }
 
+        // An inadmissible heuristic that goes through each row
+        // and each column, counting the number of misplaced tiles it finds
         private int getRowColCount()
         {
             int h = 0;
@@ -187,12 +184,15 @@ namespace COMP472_Assignment_1
             return h;
         }
         #region INode methods
+
+        // Two 8-puzzle nodes equal eachother when their boards are the same
         public bool getEquals(INode other)
         {
             EightPuzzleNode otherNode = (EightPuzzleNode)other;
             return board.SequenceEqual(otherNode.getBoard());
         }
 
+        // Get the heuristic based on the selected heuristic
         public int getHeuristic()
         {
             switch(selectedHeuristic)
@@ -212,6 +212,7 @@ namespace COMP472_Assignment_1
             }
         }
 
+        // Create a string indicating the placement of all the tiles on the board
         public string getName()
         {
             return string.Format("({0})",string.Join(" ",board.Select(x => tileNames[x])));
@@ -219,6 +220,7 @@ namespace COMP472_Assignment_1
 
         public Dictionary<INode, int> getOperations()
         {
+            // Only generate the operations when they are first asked for
             if(operations != null)
             {
                 return operations;
@@ -228,6 +230,7 @@ namespace COMP472_Assignment_1
 
             int pivot = board.IndexOf(Tiles.empty);
 
+            // Iterate through each possible action based on the position of the blank tile
             foreach (var op in validActions[pivot])
             {
                 int tileToMove = 0;
@@ -249,11 +252,15 @@ namespace COMP472_Assignment_1
                         throw new Exception("Could not move tile!");
                 }
 
+                // Copy the board
                 List<Tiles> newBoard = new List<Tiles>(board);
 
+                // Swap the positions of the empty tile with the one we are moving
                 newBoard[pivot] = board[tileToMove];
                 newBoard[tileToMove] = Tiles.empty;
 
+                // Add the new board to the list of children boards
+                // The cost for all operations on the 8-puzzle is 1
                 operations.Add(new EightPuzzleNode(newBoard), 1);
             }
 

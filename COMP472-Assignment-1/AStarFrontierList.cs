@@ -7,39 +7,37 @@ using Wintellect.PowerCollections;
 
 namespace COMP472_Assignment_1
 {
+    /// <summary>
+    /// The A* Star frontier orders each node according to the result
+    /// of the function f(n) = cost(n) + heuristic(n)
+    /// </summary>
     class AStarFrontierList : IFrontier
     {
+        // Class to compare branches in the frontier
         class AStarComparer : IComparer<IBranch>
         {
             public int Compare(IBranch x, IBranch y)
             {
                 int compareValue = (x.getCost() + x.getLeaf().getHeuristic()) - (y.getCost() + y.getLeaf().getHeuristic());
-
-                // Don't allow 0 values since items with the same sort value get rejected by the SortedSet
-                //return compareValue == 0 ? -1 : compareValue;
                 return compareValue;
             }
         }
 
-        //SortedSet<IBranch> list = new SortedSet<IBranch>(new AStarComparer());
-        //List<IBranch> list = new List<IBranch>();
+        // The OrderedBag from PowerCollections sorts items according to the provided IComparer object
+        // Such a specialized datastructure was required since built-in ordered datastructures do not allow
+        //     multiple items with the same comparison value (which in our case is the heuristic)
         OrderedBag<IBranch> list = new OrderedBag<IBranch>(new AStarComparer());
 
         public void Add(IBranch branch)
         {
-            /*if(list.Any(x => x.getLeaf().getEquals(branch.getLeaf())))
-            {
-                return;
-            }*/
-
+            // Check to see if the branch is already in the collection
             IBranch contender = list.AsEnumerable().FirstOrDefault(x => x.getLeaf().getEquals(branch.getLeaf()));
-
-            
 
             if(contender != null)
             {
                 if(contender.getCost() > branch.getCost())
                 {
+                    // If the new branch is better, remove the existing one
                     list.Remove(contender);
                 }
                 else
@@ -49,19 +47,12 @@ namespace COMP472_Assignment_1
             }
 
             list.Add(branch);
-            //var comparer = new AStarComparer();
-            //list.Sort((x, y) => comparer.Compare(x, y));
         }
 
+        // "Pop" the first item off the OrderedBag
         public IBranch GetNext()
         {
-            //Console.WriteLine("        Original Items: " + string.Join(", ", list.AsEnumerable().Select(x => x.getLeaf().getName())));
             IBranch first = list.RemoveFirst();
-            
-
-            //Console.WriteLine("        Popping: " + first.getLeaf().getName());
-
-            //Console.WriteLine("        New Items: " + string.Join(", ", list.AsEnumerable().Select(x => x.getLeaf().getName())));
 
             return first;
         }

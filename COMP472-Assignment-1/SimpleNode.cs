@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace COMP472_Assignment_1
 {
+    /// <summary>
+    /// A simple node to represent a state in a graph problem
+    /// </summary>
     class SimpleNode : INode
     {
         private string name;
@@ -18,6 +21,7 @@ namespace COMP472_Assignment_1
             this.name = name;
         }
 
+        // Link this node to another with a cost
         public void MakeLink(int cost, INode child)
         {
             operations.Add(child, cost);

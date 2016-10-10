@@ -17,6 +17,8 @@ namespace COMP472_Assignment_1
             this.parent = parent;
         }
 
+        // Recursively add the cost of reaching the current leaf from the child 
+        // until we reach the root
         public int getCost()
         {
             if(parent == null)
@@ -24,6 +26,7 @@ namespace COMP472_Assignment_1
                 return 0;
             }
 
+            // Ask the parent how much is the cost to get to the current child
             int costHere = parent.getLeaf().getOperations()[leaf];
             return costHere + parent.getCost();
         }
@@ -38,6 +41,7 @@ namespace COMP472_Assignment_1
             return parent;
         }
 
+        // Recursively print the path to get from the root
         public string printPath()
         {
             if (parent == null)

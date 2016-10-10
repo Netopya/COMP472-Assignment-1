@@ -8,8 +8,23 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
+/*
+    Assignment #1 for COMP 472 Artificial Intelligence
+    Michael Bilinsky 26992358
+    By implementing a generic search algorithm, various searches are implented by extending the IFrontier and INode interfaces
+    BFS, DFS, Greedy, and A* Star searches can be performed on a simple graph and 8-puzzle problems
+    For the informed searches, Manhattan Distance, Misplaced Tiles, the Minimum of Manhattan and Misplaced, along with
+        two heuristics of my own design (Row-Swap and RowColCount) can be used
+    Execution times are recorded along with the cost and iteration count of the solution
+
+    The A* Star search uses an OrderedBag datastructure from Wintellect's Power Collection for .NET library
+    source: https://powercollections.codeplex.com/
+*/
+
 namespace COMP472_Assignment_1
 {
+    // Enums to aid in problem configuration
+
     enum ProblemTypes
     {
         Graph,
@@ -26,14 +41,16 @@ namespace COMP472_Assignment_1
 
     public partial class Form1 : Form
     {
-        IFrontier frontier;
-        List<IBranch> visited = new List<IBranch>();
-        List<INode> goals = new List<INode>();
-        bool DFSfix = false;
+        IFrontier frontier; // The collection of nodes to explore
+        List<IBranch> visited = new List<IBranch>(); // The collection of visited nodes
+        List<INode> goals = new List<INode>(); // The collection of goal states
+        bool DFSfix = false; // A quick fix to avoid stack overflow exceptions during DFS and Greedy searches
 
         public Form1()
         {
             InitializeComponent();
+
+            // Initialize the drop down menus
             cmbHType.DataSource = Enum.GetValues(typeof(EightPuzzleHeuristics));
             cmbProblemType.DataSource = Enum.GetValues(typeof(ProblemTypes));
             cmbSearchType.DataSource = Enum.GetValues(typeof(SearchType));
@@ -41,61 +58,10 @@ namespace COMP472_Assignment_1
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            /*
-            for(int i =0; i < 9; i++)
-            {
-                Console.WriteLine("Index: " + i + " Point: " + EightPuzzleNode.indexToCoordinate(i).ToString());
-            }*/
-
-            
-
-            return;
-
-            loadBFS();
-            loadSimpleData();
-            performSearch();
-
-            loadDFS();
-            loadSimpleData();
-            performSearch();
-
-            loadGreedy();
-            loadSimpleData();
-            performSearch();
-
-            loadAStar();
-            loadSimpleData();
-            performSearch();
-
-            loadAStar();
-            EightPuzzleNode.selectedHeuristic = EightPuzzleHeuristics.manhattan;
-            loadEightPuzzleData();
-            performSearch();
-
-            loadAStar();
-            EightPuzzleNode.selectedHeuristic = EightPuzzleHeuristics.row_swap;
-            loadEightPuzzleData();
-            performSearch();
-
-            loadAStar();
-            EightPuzzleNode.selectedHeuristic = EightPuzzleHeuristics.misplaced;
-            loadEightPuzzleData();
-            performSearch();
-
-            loadAStar();
-            EightPuzzleNode.selectedHeuristic = EightPuzzleHeuristics.row_col_count;
-            loadEightPuzzleData();
-            performSearch();
-
-            //performASearch();
-
-            //performBFS();
         }
 
         private void loadSearch()
         {
-            //txtOut.Text = "";
-
             switch((SearchType)cmbSearchType.SelectedValue)
             {
                 case SearchType.BFS:
@@ -112,7 +78,7 @@ namespace COMP472_Assignment_1
                     break;
             }
 
-            DFSfix = (SearchType)cmbSearchType.SelectedValue == SearchType.DFS;
+            DFSfix = (SearchType)cmbSearchType.SelectedValue == SearchType.DFS || (SearchType)cmbSearchType.SelectedValue == SearchType.Greedy;
 
             if ((ProblemTypes)cmbProblemType.SelectedValue == ProblemTypes.Graph)
             {
@@ -128,6 +94,9 @@ namespace COMP472_Assignment_1
             performSearch();
         }
 
+        /// <summary>
+        /// Load a simple graph problem as shown in the first tutorial
+        /// </summary>
         private void loadSimpleData()
         {
             visited.Clear();
@@ -161,6 +130,9 @@ namespace COMP472_Assignment_1
             goals.Add(G2);
         }
 
+        /// <summary>
+        /// Load the 8-Puzzle
+        /// </summary>
         private void loadEightPuzzleData()
         {
             visited.Clear();
@@ -171,11 +143,8 @@ namespace COMP472_Assignment_1
             EightPuzzleNode.Goal = goal.getBoard();
             goals.Add(goal);
 
-            //EightPuzzleNode start = new EightPuzzleNode(new List<Tiles> { Tiles.one, Tiles.two, Tiles.three, Tiles.eight, Tiles.six, Tiles.four, Tiles.seven, Tiles.five, Tiles.empty });
-            //EightPuzzleNode start = new EightPuzzleNode(new List<Tiles> { Tiles.one, Tiles.two, Tiles.three, Tiles.eight, Tiles.empty, Tiles.four, Tiles.seven, Tiles.six, Tiles.five });
-
-            //EightPuzzleNode start = new EightPuzzleNode(new List<Tiles> { Tiles.one, Tiles.two, Tiles.three, Tiles.four, Tiles.five, Tiles.six, Tiles.eight, Tiles.seven, Tiles.empty });
-            EightPuzzleNode start = new EightPuzzleNode(new List<Tiles> { Tiles.four, Tiles.six, Tiles.seven, Tiles.one, Tiles.empty, Tiles.two, Tiles.three, Tiles.five, Tiles.eight });
+            EightPuzzleNode start = new EightPuzzleNode(new List<Tiles> { Tiles.one, Tiles.two, Tiles.three, Tiles.four, Tiles.five, Tiles.six, Tiles.eight, Tiles.seven, Tiles.empty });
+            //EightPuzzleNode start = new EightPuzzleNode(new List<Tiles> { Tiles.four, Tiles.six, Tiles.seven, Tiles.one, Tiles.empty, Tiles.two, Tiles.three, Tiles.five, Tiles.eight });
             
             frontier.Add(new SimpleBranch(start, null));
         }
@@ -207,37 +176,44 @@ namespace COMP472_Assignment_1
 
         private void performSearch()
         {
+            // Start the timer
             var watch = System.Diagnostics.Stopwatch.StartNew();
 
             IBranch result = null;
             int count = 0;
 
+            // Iterate until a result is found
             while (result == null)
             {
                 count++;
 
+                // Get the next item to explore in the frontier and add it to visited branches
                 IBranch current = frontier.GetNext();
                 visited.Add(current);
 
-                //Console.WriteLine("    Checking path: " + current.printPath());
+                // At 100 iteration intervals, print that we are still counting to let the user know we are still working
                 if (count % 100 == 0)
                 {
                     Console.WriteLine("    Checked " + count + " paths");
                 }
 
+                // Check each operation available at the current node
                 foreach (var op in current.getLeaf().getOperations())
                 {
+                    // Check to see if the new move has already been visited
                     if (visited.Any(x => x.getLeaf().getEquals(op.Key)))
                     {
                         continue;
                     }
 
+                    // If we found a goal state, exit the loop
                     if (goals.Any(x => x.getEquals(op.Key)))
                     {
                         result = new SimpleBranch(op.Key, current);
                         break;
                     }
 
+                    // Add the node to the frontier by creating a new leaf with the current node as the parent
                     frontier.Add(new SimpleBranch(op.Key, current));
                 }
             }
@@ -245,16 +221,20 @@ namespace COMP472_Assignment_1
 
             watch.Stop();
 
+            /*
+                Report the solution's path, cost, count, and execution time
+            */
+
+
             if (DFSfix)
             {
                 // A quite bug fix to prevent the stack overflow error encountered here when performing DFS
                 // The normal code analyzes the result recursively (causing an overflow in DFS's case), here it is done iteratively
-                string path = "";
+                string path = result.getLeaf().getName();
                 int cost = 0;
                 var last = result;
                 while (last != null)
                 {
-                    path = last.getLeaf().getName() + " > " + path;
                     cost++;
                     last = last.getParent();
                 }
@@ -265,118 +245,25 @@ namespace COMP472_Assignment_1
             {
                 printMessage(string.Format("Found: {0}{1}    cost: {2}{3}    count: {4}{1}    After {5} seconds", result.printPath(), System.Environment.NewLine, result.getCost(), System.Environment.NewLine, count, watch.Elapsed.TotalSeconds));
             }
-            //
-
-            //printMessage("Found: " + result.printPath() + " cost: " + result.getCost());
-            //printMessage("    count: " + count);
         }
 
+        // The "Run!" button
         private void button1_Click(object sender, EventArgs e)
         {
             loadSearch();
         }
 
+        // Print a message to the GUI textbox and the console
         private void printMessage(string message)
         {
             txtOut.Text += message + System.Environment.NewLine + System.Environment.NewLine;
             Console.WriteLine(message);
         }
 
+        // The clear output button
         private void button2_Click(object sender, EventArgs e)
         {
             txtOut.Text = "";
         }
-
-        /*
-        private void performBFS()
-        {
-            IBranch result = null;
-
-            while (result == null)
-            {
-                IBranch current = frontier.Last();
-                frontier.Remove(current);
-                visited.Add(current);
-
-                // Might have to move this after check
-                if (goals.Any(x => x.getEquals(current.getLeaf())))
-                {
-                    result = current;
-                    break;
-                }
-
-                foreach(var op in current.getLeaf().getOperations())
-                {
-                    if(visited.Any(x => x.getLeaf().getEquals(op.Key)))
-                    {
-                        continue;
-                    }
-
-                    if (goals.Any(x => x.getEquals(op.Key)))
-                    {
-                        result = new SimpleBranch(op.Key, current);
-                        break;
-                    }
-
-                    frontier.Add(new SimpleBranch(op.Key, current));
-                }
-            }
-
-            Console.WriteLine("Found: " + result.printPath() + " cost: " + result.getCost());
-            Console.ReadLine();
-        }
-
-        private void performASearch()
-        {
-            IBranch result;
-
-            while (true)
-            {
-
-                IBranch current = frontier.MinBy(x => x.getCost() + x.getLeaf().getHeuristic());
-
-                Console.WriteLine("Exploring " + current.getLeaf().getName());
-
-                if (goals.Any(x => x.getEquals(current.getLeaf())))
-                {
-                    result = current;
-                    break;
-                }
-
-                frontier.Remove(current);
-                visited.Add(current);
-
-                foreach (var op in current.getLeaf().getOperations())
-                {
-                    // Check if we have already visited a the node
-                    if (visited.Count(x => x.getLeaf().getEquals(op.Key)) > 0)
-                    {
-                        continue;
-                    }
-
-                    // If we found a path to a node that is already in the frontier, check to see if it is better and replace it
-                    var frontierContenders = frontier.Where(x => x.getLeaf().getEquals(op.Key));
-                    if (frontierContenders.Count() > 0)
-                    {
-                        IBranch contender = frontierContenders.MinBy(x => x.getCost() + x.getLeaf().getHeuristic());
-                        if (contender.getCost() + contender.getLeaf().getHeuristic() > op.Key.getHeuristic() + op.Value + current.getCost())
-                        {
-                            frontier.Remove(contender);
-                        }
-                        else
-                        {
-                            continue;
-                        }
-                    }
-
-                    // Add the valid child nodes to the frontier
-                    frontier.Add(new SimpleBranch(op.Key, current));
-                }
-            }
-
-
-            Console.WriteLine("Found: " + result.printPath() + " cost: " + result.getCost());
-            Console.ReadLine();
-        }*/
     }
 }

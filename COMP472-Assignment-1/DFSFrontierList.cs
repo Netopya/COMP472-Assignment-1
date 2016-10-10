@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace COMP472_Assignment_1
 {
+    /// <summary>
+    /// DFS's frontier is just a simple stack
+    /// </summary>
     class DFSFrontierList : IFrontier
     {
         Stack<IBranch> list = new Stack<IBranch>();

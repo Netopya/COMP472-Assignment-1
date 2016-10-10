@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 
 namespace COMP472_Assignment_1
 {
+    /// <summary>
+    /// BFS's frontier is just a simple Queue
+    /// </summary>
     class BFSFrontierList : IFrontier
     {
         Queue<IBranch> list = new Queue<IBranch>();
