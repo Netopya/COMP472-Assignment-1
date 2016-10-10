@@ -29,6 +29,7 @@ namespace COMP472_Assignment_1
         IFrontier frontier;
         List<IBranch> visited = new List<IBranch>();
         List<INode> goals = new List<INode>();
+        bool DFSfix = false;
 
         public Form1()
         {
@@ -111,7 +112,9 @@ namespace COMP472_Assignment_1
                     break;
             }
 
-            if((ProblemTypes)cmbProblemType.SelectedValue == ProblemTypes.Graph)
+            DFSfix = (SearchType)cmbSearchType.SelectedValue == SearchType.DFS;
+
+            if ((ProblemTypes)cmbProblemType.SelectedValue == ProblemTypes.Graph)
             {
                 loadSimpleData();
             }
@@ -171,8 +174,8 @@ namespace COMP472_Assignment_1
             //EightPuzzleNode start = new EightPuzzleNode(new List<Tiles> { Tiles.one, Tiles.two, Tiles.three, Tiles.eight, Tiles.six, Tiles.four, Tiles.seven, Tiles.five, Tiles.empty });
             //EightPuzzleNode start = new EightPuzzleNode(new List<Tiles> { Tiles.one, Tiles.two, Tiles.three, Tiles.eight, Tiles.empty, Tiles.four, Tiles.seven, Tiles.six, Tiles.five });
 
-            EightPuzzleNode start = new EightPuzzleNode(new List<Tiles> { Tiles.one, Tiles.two, Tiles.three, Tiles.four, Tiles.five, Tiles.six, Tiles.eight, Tiles.seven, Tiles.empty });
-            //EightPuzzleNode start = new EightPuzzleNode(new List<Tiles> { Tiles.four, Tiles.six, Tiles.seven, Tiles.one, Tiles.empty, Tiles.two, Tiles.three, Tiles.five, Tiles.eight });
+            //EightPuzzleNode start = new EightPuzzleNode(new List<Tiles> { Tiles.one, Tiles.two, Tiles.three, Tiles.four, Tiles.five, Tiles.six, Tiles.eight, Tiles.seven, Tiles.empty });
+            EightPuzzleNode start = new EightPuzzleNode(new List<Tiles> { Tiles.four, Tiles.six, Tiles.seven, Tiles.one, Tiles.empty, Tiles.two, Tiles.three, Tiles.five, Tiles.eight });
             
             frontier.Add(new SimpleBranch(start, null));
         }
@@ -239,9 +242,31 @@ namespace COMP472_Assignment_1
                 }
             }
 
+
             watch.Stop();
-            printMessage(string.Format("Found: {0}{1}    cost: {2}{3}    count: {4}{1}    After {5} seconds", result.printPath(), System.Environment.NewLine, result.getCost(), System.Environment.NewLine, count, watch.Elapsed.TotalSeconds));
-            
+
+            if (DFSfix)
+            {
+                // A quite bug fix to prevent the stack overflow error encountered here when performing DFS
+                // The normal code analyzes the result recursively (causing an overflow in DFS's case), here it is done iteratively
+                string path = "";
+                int cost = 0;
+                var last = result;
+                while (last != null)
+                {
+                    path = last.getLeaf().getName() + " > " + path;
+                    cost++;
+                    last = last.getParent();
+                }
+
+                printMessage(string.Format("Found: {0}{1}    cost: {2}{3}    count: {4}{1}    After {5} seconds", path, System.Environment.NewLine, cost, System.Environment.NewLine, count, watch.Elapsed.TotalSeconds));
+            }
+            else
+            {
+                printMessage(string.Format("Found: {0}{1}    cost: {2}{3}    count: {4}{1}    After {5} seconds", result.printPath(), System.Environment.NewLine, result.getCost(), System.Environment.NewLine, count, watch.Elapsed.TotalSeconds));
+            }
+            //
+
             //printMessage("Found: " + result.printPath() + " cost: " + result.getCost());
             //printMessage("    count: " + count);
         }
